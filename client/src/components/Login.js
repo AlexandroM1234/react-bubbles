@@ -18,7 +18,7 @@ const Login = props => {
     AxiosWithAuth()
       .post("http://localhost:5000/api/login", login)
       .then(res => {
-        console.log(res.data);
+        // console.log(res.data.payload);
         localStorage.setItem("token", JSON.stringify(res.data.payload));
         props.history.push("/BubblePage");
       })
