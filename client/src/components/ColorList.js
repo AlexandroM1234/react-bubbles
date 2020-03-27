@@ -9,7 +9,7 @@ const initialColor = {
   id: ""
 };
 
-const ColorList = ({ colors, updateColors, getData }) => {
+const ColorList = ({ colors, updateColors }) => {
   console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
@@ -28,7 +28,6 @@ const ColorList = ({ colors, updateColors, getData }) => {
   }, [colors, colorToEdit.id]);
 
   const saveEdit = e => {
-    e.preventDefault();
     console.log(colorToEdit.id);
     // Make a put request to save your updated color
     // think about where will you get the id from...
@@ -40,7 +39,8 @@ const ColorList = ({ colors, updateColors, getData }) => {
         const newArray = colors.map(color => {
           if (color.id === res.data.id) {
             console.log(res.data);
-            return res.data;
+            updateColors(res.data);
+            return updateColors(colors);
           } else {
             return color;
           }
