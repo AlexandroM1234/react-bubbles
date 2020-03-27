@@ -138,8 +138,10 @@ app.put("/api/colors/:id", authenticator, (req, res) => {
       .status(422)
       .send("Make sure your request body has all the fields it needs");
   }
+  console.log(req.params.id);
   colors = colors.map(color => {
     if (`${color.id}` === req.params.id) {
+      console.log(req.body);
       return req.body;
     }
     return color;

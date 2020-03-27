@@ -1,30 +1,67 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import axios from "axios";
+import AxiosWithAuth from "./AxiosWithAuth";
 
 const initialColor = {
   color: "",
-  code: { hex: "" }
+  code: { hex: "" },
+  id: ""
 };
 
-const ColorList = ({ colors, updateColors }) => {
+const ColorList = ({ colors, updateColors, getData }) => {
   console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
+  const { id } = useParams();
 
   const editColor = color => {
     setEditing(true);
     setColorToEdit(color);
   };
 
+  useEffect(() => {
+    const colorController = colors.find(e => `${e.id}` === id);
+    if (colorController) {
+      setColorToEdit(colorController);
+    }
+  }, [colors, colorToEdit.id]);
+
   const saveEdit = e => {
     e.preventDefault();
+    console.log(colorToEdit.id);
     // Make a put request to save your updated color
     // think about where will you get the id from...
     // where is is saved right now?
+    AxiosWithAuth()
+      .put(`http://localhost:5000/api/colors/${colorToEdit.id}`, colorToEdit)
+      .then(res => {
+        console.log(res.data);
+        const newArray = colors.map(color => {
+          if (color.id === res.data.id) {
+            console.log(res.data);
+            return res.data;
+          } else {
+            return color;
+          }
+        });
+        console.log(newArray);
+        // updateColors(newArray);
+        setColorToEdit(initialColor);
+      })
+      .catch(err => console.log("you messed up the put", err));
   };
 
   const deleteColor = color => {
     // make a delete request to delete this color
+    AxiosWithAuth()
+      .delete(`http://localhost:5000/api/colors/${color.id}`)
+      .then(res => {
+        console.log(updateColors);
+        const newColorArray = colors.filter(color => color.id !== res.data);
+        updateColors(newColorArray);
+      })
+      .catch(err => console.log("you messed up the delete", err));
   };
 
   return (
@@ -34,12 +71,14 @@ const ColorList = ({ colors, updateColors }) => {
         {colors.map(color => (
           <li key={color.color} onClick={() => editColor(color)}>
             <span>
-              <span className="delete" onClick={e => {
-                    e.stopPropagation();
-                    deleteColor(color)
-                  }
-                }>
-                  x
+              <span
+                className="delete"
+                onClick={e => {
+                  e.stopPropagation();
+                  deleteColor(color);
+                }}
+              >
+                x
               </span>{" "}
               {color.color}
             </span>
